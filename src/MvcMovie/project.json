@@ -1,4 +1,4 @@
-﻿{
+{
   "userSecretsId": "aspnet-MvcMovie-fef1d4b7-2161-4ecf-90c4-482bd7059a9d",
 
   "dependencies": {
@@ -35,7 +35,7 @@
       "version": "1.0.0-preview1-final",
       "type": "build"
     },
-    "Microsoft.VisualStudio.Web.CodeGenerators.Mvc":  {
+    "Microsoft.VisualStudio.Web.CodeGenerators.Mvc": {
       "version": "1.0.0-preview1-final",
       "type": "build"
     }
