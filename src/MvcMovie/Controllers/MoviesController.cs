@@ -20,9 +20,30 @@ namespace MvcMovie.Controllers
         }
 
         // GET: Movies
-        public async Task<IActionResult> Index()
+        public IActionResult Index(string movieGenre, string searchString)
         {
-            return View(await _context.Movie.ToListAsync());
+            var GenreQry = from m in _context.Movie
+                           orderby m.Genre
+                           select m.Genre;
+
+            var GenreList = new List<string>();
+            GenreList.AddRange(GenreQry.Distinct());
+            ViewData["movieGenre"] = new SelectList(GenreList);
+
+            var movies = from m in _context.Movie
+                         select m;
+
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                movies = movies.Where(s => s.Title.Contains(searchString));
+            }
+
+            if (!string.IsNullOrEmpty(movieGenre))
+            {
+                movies = movies.Where(x => x.Genre == movieGenre);
+            }
+
+            return View(movies);
         }
 
         // GET: Movies/Details/5
@@ -53,7 +74,7 @@ namespace MvcMovie.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID,Genre,Price,ReleaseDate,Title")] Movie movie)
+        public async Task<IActionResult> Create([Bind("ID,Genre,Price,ReleaseDate,Title,Rating")] Movie movie)
         {
             if (ModelState.IsValid)
             {
@@ -81,35 +102,16 @@ namespace MvcMovie.Controllers
         }
 
         // POST: Movies/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // POST: Movies/Edit/6
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,Genre,Price,ReleaseDate,Title")] Movie movie)
+        public IActionResult Edit(
+            [Bind("ID,Title,ReleaseDate,Genre,Price,Rating")] Movie movie)
         {
-            if (id != movie.ID)
-            {
-                return NotFound();
-            }
-
             if (ModelState.IsValid)
             {
-                try
-                {
-                    _context.Update(movie);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!MovieExists(movie.ID))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+                _context.Update(movie);
+                _context.SaveChanges();
                 return RedirectToAction("Index");
             }
             return View(movie);
